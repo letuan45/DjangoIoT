@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+      integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700&family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>Document</title>
+    <style>
+      body {
+        background-color: #f2e9e4;
+        font-family: "Jost", sans-serif;
+        font-family: "Poppins", sans-serif;
+      }
+      .container-fluid {
+        background-color: #bde0fe;
+        width: 700px;
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 25px;
+      }
+      .sm-header {
+        font-size: 25px;
+        font-weight: 300;
+        margin-bottom: 0;
+        text-align: center;
+      }
+      .main-header {
+        color: #003049;
+        text-align: center;
+        font-size: 40px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+      }
+      .sensor-h {
+        margin-top: 5px;
+        font-size: 20px;
+        text-align: center;
+        color: #023047;
+      }
+      .wrapper {
+        width: 45%;
+      }
+      .data-wrapper {
+        display: flex;
+        justify-content: center;
+        font-size: 30px;
+      }
+      .data {
+        font-size: 80px;
+      }
+      .temp-logo,
+      .hum-logo {
+        font-size: 45px;
+      }
+      .temp-logo {
+        color: #e63946;
+      }
+      .hum-logo {
+        color: #219ebc;
+      }
+      .time {
+        margin: 0;
+        text-align: center;
+        font-size: 20px;
+        display: inline-block;
+        width: 100%;
+        color: #fb8500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <h1 class="main-header">Weather Station</h1>
+      <h3 class="sm-header">Read from DHT11 sensor</h3>
+      <i class="time">8:49 26/10/2022</i>
+      <div class="container">
+        <div class="wrapper">
+          <h4 class="sensor-h">Temperature</h4>
+          <div class="data-wrapper">
+            <i class="fa-solid fa-temperature-low temp-logo"></i>
+            <span class="data temperature">None</span>
+          </div>
+        </div>
+        <div class="wrapper">
+          <h4 class="sensor-h">Humidity</h4>
+          <div class="data-wrapper">
+            <i class="fa-solid fa-hand-holding-droplet hum-logo"></i>
+            <span class="data humidity">None</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="text/javascript">
+    const currentUrl = window.location.href;
+
+    const formatDate = (dateStr) => {
+      const date = new Date(dateStr);
+
+      const res = 
+      ("00" + (date.getMonth() + 1)).slice(-2) +
+        "/" +
+        ("00" + date.getDate()).slice(-2) +
+        "/" +
+        date.getFullYear() +
+        " " +
+        ("00" + date.getHours()).slice(-2) +
+        ":" +
+        ("00" + date.getMinutes()).slice(-2) +
+        ":" +
+        ("00" + date.getSeconds()).slice(-2);
+
+        return res;
+    };
+
+    fetch(`${currentUrl}/get-latest`)
+      .then((response) => response.json())
+      .then((data) => {
+        const tempElement = document.querySelector(".temperature");
+        tempElement.innerHTML = `${data.temperature}&deg;C`;
+
+        const humElement = document.querySelector(".humidity");
+        humElement.innerHTML = `${data.humidity}%`;
+
+        const timeElement = document.querySelector(".time");
+        timeElement.innerHTML = `${formatDate(data.time)}`;
+      })
+      .finally((err) => {
+        //Call routine
+        function callFunction() {
+          fetch(`${currentUrl}/create-sensor-data`)
+            .then((response) => response.json())
+            .then((data) => {
+              fetch(`${currentUrl}/get-latest`)
+                .then((response) => response.json())
+                .then((data) => {
+                  const tempElement = document.querySelector(".temperature");
+                  tempElement.innerHTML = `${data.temperature}&deg;C`;
+
+                  const humElement = document.querySelector(".humidity");
+                  humElement.innerHTML = `${data.humidity}%`;
+
+                  const timeElement = document.querySelector(".time");
+                  timeElement.innerHTML = `${formatDate(data.time)}`;
+                });
+            })
+            .catch((err) => console.error(err));
+
+          setTimeout(callFunction, 10000);
+        }
+        callFunction();
+      })
+      .catch((err) => console.error(err));
+  </script>
+</html>
